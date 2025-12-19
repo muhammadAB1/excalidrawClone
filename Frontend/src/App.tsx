@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MyCanvasComponent from './components/CanvasComponent'
+import type { box, shapeType } from './types';
 
 function App() {
 
@@ -7,11 +8,11 @@ function App() {
   const [y, setY] = useState(0)
   const [initialx, setInitialx] = useState(0)
   const [initialy, setInitialy] = useState(0)
-  const [endx, setEndx] = useState(0)
-  const [endy, setEndy] = useState(0)
   const [differencex, setDifferencex] = useState(0)
   const [differencey, setDifferencey] = useState(0)
   const [isMouseDown, setIsMouseDown] = useState(false)
+  const [box, setBox] = useState<box[]>([])
+  const [shape, setShape] = useState<shapeType>('square')
 
 
   // const handleClick = (e) => {
@@ -24,19 +25,25 @@ function App() {
   //   // console.log('mouse down:', initialx, initialy)
   //   console.log('mouse down:', differencex, differencey)
   // }
-  const handleMouseUp = (e) => {
-    // setX(0)
-    // setY(0)
-    // setInitialx(0)
-    // setInitialy(0)
-    console.log('when mouse is up',isMouseDown)
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    setBox(prev => [
+      ...prev,
+      {
+        height: differencex,
+        width: differencey,
+        left: initialx,
+        right: initialy,
+        shape: shape
+      }])
+    console.log(box)
+    setX(0)
+    setY(0)
+    setInitialx(0)
+    setInitialy(0)
+    setDifferencex(0)
+    setDifferencey(0)
     setIsMouseDown(false)
-    setEndx(0)
-    setEndy(0)
-    // setEndx(e.clientX)
-    // setEndy(e.clientY)
 
-    // console.log('mouse up:', endx, endy)
   }
   // const handleMouseMove = (e) => {
   //   setX(e.clientX)
@@ -47,42 +54,59 @@ function App() {
   return (
     <>
       {/* <MyCanvasComponent /> */}
+      <div style={{ position: 'absolute', width: '100%', height: '100vh', display: 'flex', justifyContent: 'center', gap: '4px', backgroundColor: '#eee' }}>
 
-      <div
-        // onClick={() => {
-        //   setX(0)
-        //   setY(0)
-        //   console.log(x)
-        //   setInitialx(0)
-        //   setInitialy(0)
-        //   setDifferencex(0)
-        //   setDifferencex(0)
-        // }}
-        onMouseDown={(e) => {
-          setIsMouseDown(true)
-   
-          if (isMouseDown) {
+        <div style={{ cursor: 'pointer', position: 'absolute', width: '25%', backgroundColor: 'white', zIndex: 1, display: 'flex', justifyContent: 'space-around' }}>
+          <p onClick={() => setShape('square')}>Square</p>
+          <p onClick={() => {
+            setShape('circle')
+            console.log('circle')
+          }}>Circle</p>
+        </div>
+        <div
+          // onClick={() => {
+          //   setX(0)
+          //   setY(0)
+          //   console.log(x)
+          //   setInitialx(0)
+          //   setInitialy(0)
+          //   setDifferencex(0)
+          //   setDifferencex(0)
+          // }}
+          onMouseDown={(e) => {
+            setIsMouseDown(true)
+
+            if (isMouseDown) {
+              setDifferencex(0)
+              setDifferencey(0)
+            }
             setDifferencex(0)
             setDifferencey(0)
+            setInitialx(e.clientX)
+            setInitialy(e.clientY)
+            // handleMouseDown(e)
+          }}
+          onMouseUp={handleMouseUp}
+          onMouseMove={(e) => {
+            if (isMouseDown) {
+              setDifferencex(x - initialx)
+              setDifferencey(y - initialy)
+              setX(e.clientX)
+              setY(e.clientY)
+            }
+          }}
+          style={{ position: 'absolute', width: "100%", height: "100vh", background: "#eee" }}
+        >
+          {/* Click anywhere */}
+          <div style={{ borderRadius: `${shape === 'square' ? '10px' : '100%'}`, width: `${differencex}px`, height: `${differencey}px`, background: "transparemt", border: '5px solid black', position: 'absolute', left: `${initialx}px`, top: `${initialy}px` }} />
+          {
+            box.map(box => {
+              return (
+                <div style={{ borderRadius: `${box.shape === 'square' ? '10px' : '100%'}`, width: `${box.height}px`, height: `${box.width}px`, background: "transparemt", border: '5px solid black', position: 'absolute', left: `${box.left}px`, top: `${box.right}px` }}></div>
+              )
+            })
           }
-          setInitialx(e.clientX)
-          setInitialy(e.clientY)
-          // handleMouseDown(e)
-        }}
-        onMouseUp={handleMouseUp}
-        onMouseMove={(e) => {
-          if (isMouseDown) {
-            setDifferencex(x - initialx)
-            setDifferencey(y - initialy)
-            console.log('difference', differencex)
-            setX(e.clientX)
-            setY(e.clientY)
-          }
-        }}
-        style={{ width: "100vw", height: "100vh", background: "#eee" }}
-      >
-        {/* Click anywhere */}
-        <div style={{ width: `${differencex}px`, height: `${differencey}px`, background: "transparemt", border: '5px solid black', borderRadius: '10px', position: 'absolute', left: initialx, top: initialy }} />
+        </div>
       </div>
     </>
   )
