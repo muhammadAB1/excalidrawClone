@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 // import MyCanvasComponent from './components/CanvasComponent'
 import type { box, shapeType } from './types';
 
@@ -15,27 +15,30 @@ function App() {
   const [shape, setShape] = useState<shapeType>('square')
 
 
-  // const handleClick = (e) => {
 
-  //   // console.log("Clicked at:", e.clientX, e.clientY);
-  // };
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsMouseDown(true)
 
-  // const handleMouseDown = (e) => {
+    if (isMouseDown) {
+      setDifferencex(0)
+      setDifferencey(0)
+    }
+    setDifferencex(0)
+    setDifferencey(0)
+    setInitialx(e.clientX)
+    setInitialy(e.clientY)
+  }
 
-  //   // console.log('mouse down:', initialx, initialy)
-  //   console.log('mouse down:', differencex, differencey)
-  // }
   const handleMouseUp = () => { //e: React.MouseEvent<HTMLDivElement>
     setBox(prev => [
       ...prev,
       {
         height: differencex,
         width: differencey,
-        left: initialx,
-        right: initialy,
+        left: Math.min(initialx, x),
+        right: Math.min(initialy, y),
         shape: shape
       }])
-    console.log(box)
     setX(0)
     setY(0)
     setInitialx(0)
@@ -45,64 +48,60 @@ function App() {
     setIsMouseDown(false)
 
   }
-  // const handleMouseMove = (e) => {
-  //   setX(e.clientX)
-  //   setY(e.clientY)
-  //   // console.log('mouse up:', x, y)
-  // }
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMouseDown) {
+      setDifferencex(Math.abs(e.clientX - initialx));
+      setDifferencey(Math.abs(e.clientY - initialy));
+      // Update x and y for position calculations
+      setX(e.clientX);
+      setY(e.clientY);
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === '2') {
+      setShape('square')
+    } else if (e.key === '3') {
+      setShape('circle')
+    }
+  }
+
 
   return (
     <>
       {/* <MyCanvasComponent /> */}
-      <div style={{ position: 'absolute', width: '100%', height: '100vh', display: 'flex', justifyContent: 'center', gap: '4px', backgroundColor: '#eee' }}>
+      <div onKeyDown={handleKeyDown}
+        tabIndex={0}
+        style={{ position: 'absolute', width: '100%', height: '100vh', display: 'flex', justifyContent: 'center', backgroundColor: '#eee' }}>
 
         <div style={{ cursor: 'pointer', position: 'absolute', width: '25%', backgroundColor: 'white', zIndex: 1, display: 'flex', justifyContent: 'space-around' }}>
           <p onClick={() => setShape('square')}>Square</p>
-          <p onClick={() => {
-            setShape('circle')
-            console.log('circle')
-          }}>Circle</p>
+          <p onClick={() => { setShape('circle') }}>Circle</p>
         </div>
         <div
-          // onClick={() => {
-          //   setX(0)
-          //   setY(0)
-          //   console.log(x)
-          //   setInitialx(0)
-          //   setInitialy(0)
-          //   setDifferencex(0)
-          //   setDifferencex(0)
-          // }}
-          onMouseDown={(e) => {
-            setIsMouseDown(true)
-
-            if (isMouseDown) {
-              setDifferencex(0)
-              setDifferencey(0)
-            }
-            setDifferencex(0)
-            setDifferencey(0)
-            setInitialx(e.clientX)
-            setInitialy(e.clientY)
-            // handleMouseDown(e)
-          }}
+          onMouseDown={(e) => handleMouseDown(e)}
           onMouseUp={handleMouseUp}
-          onMouseMove={(e) => {
-            if (isMouseDown) {
-              setDifferencex(x - initialx)
-              setDifferencey(y - initialy)
-              setX(e.clientX)
-              setY(e.clientY)
-            }
-          }}
+          onMouseMove={(e) => handleMouseMove(e)}
           style={{ position: 'absolute', width: "100%", height: "100vh", background: "#eee" }}
         >
           {/* Click anywhere */}
-          <div style={{ borderRadius: `${shape === 'square' ? '10px' : '100%'}`, width: `${differencex}px`, height: `${differencey}px`, background: "transparemt", border: '5px solid black', position: 'absolute', left: `${initialx}px`, top: `${initialy}px` }} />
+          <div
+            style={{
+              borderRadius: `${shape === 'square' ? '10px' : '100%'}`,
+              width: `${differencex}px`,
+              height: `${differencey}px`,
+              background: "transparemt",
+              border: '5px solid black',
+              position: 'absolute',
+              left: `${Math.min(initialx, x)}px`,
+              top: `${Math.min(initialy, y)}px`
+            }}
+          />
           {
-            box.map(box => {
+            box.map((box, index) => {
               return (
-                <div style={{ borderRadius: `${box.shape === 'square' ? '10px' : '100%'}`, width: `${box.height}px`, height: `${box.width}px`, background: "transparemt", border: '5px solid black', position: 'absolute', left: `${box.left}px`, top: `${box.right}px` }}></div>
+                <div key={index} style={{ borderRadius: `${box.shape === 'square' ? '10px' : '100%'}`, width: `${box.height}px`, height: `${box.width}px`, background: "transparemt", border: '5px solid black', position: 'absolute', left: `${box.left}px`, top: `${box.right}px` }}></div>
               )
             })
           }
