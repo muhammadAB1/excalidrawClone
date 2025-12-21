@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import MyCanvasComponent from './components/CanvasComponent'
+// import MyCanvasComponent from './components/CanvasComponent'
 import type { box, shapeType } from './types';
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
   //   // console.log('mouse down:', initialx, initialy)
   //   console.log('mouse down:', differencex, differencey)
   // }
-  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseUp = () => { //e: React.MouseEvent<HTMLDivElement>
     setBox(prev => [
       ...prev,
       {
