@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 // import MyCanvasComponent from './components/CanvasComponent'
 import type { box, shapeType } from './types';
 
@@ -59,54 +59,69 @@ function App() {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === '2') {
-      setShape('square')
-    } else if (e.key === '3') {
-      setShape('circle')
+  // const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  //   if (e.key === '2') {
+  //     setShape('square')
+  //   } else if (e.key === '3') {
+  //     setShape('circle')
+  //   }
+  // }
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '2') {
+        setShape('square')
+      } else if (e.key === '3') {
+        setShape('circle')
+      }
     }
-  }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, []);
 
 
   return (
     <>
       {/* <MyCanvasComponent /> */}
-      <div onKeyDown={handleKeyDown}
-        tabIndex={0}
-        style={{ position: 'absolute', width: '100%', height: '100vh', display: 'flex', justifyContent: 'center', backgroundColor: '#eee' }}>
+      <div className='absolute w-full h-screen flex justify-center bg-[#eee]'>
 
-        <div style={{ cursor: 'pointer', position: 'absolute', width: '25%', backgroundColor: 'white', zIndex: 1, display: 'flex', justifyContent: 'space-around' }}>
-          <p onClick={() => setShape('square')}>Square</p>
-          <p onClick={() => { setShape('circle') }}>Circle</p>
+        <div className='cursor-pointer absolute w-1/4 bg-white z-1 flex justify-around'>
+          <p className={`${shape === 'square' ? 'border-2 border-blue-700' : ''}`}
+            onClick={() => setShape('square')}>Square</p>
+          <p className={`${shape === 'circle' ? 'border-2 border-blue-700' : ''}`}
+            onClick={() => setShape('circle')}> Circle</p>
         </div>
-        <div
+
+        <div className='absolute w-full h-screen bg-[#eee]'
           onMouseDown={(e) => handleMouseDown(e)}
           onMouseUp={handleMouseUp}
           onMouseMove={(e) => handleMouseMove(e)}
-          style={{ position: 'absolute', width: "100%", height: "100vh", background: "#eee" }}
         >
           {/* Click anywhere */}
-          <div
-            style={{
-              borderRadius: `${shape === 'square' ? '10px' : '100%'}`,
-              width: `${differencex}px`,
-              height: `${differencey}px`,
-              background: "transparemt",
-              border: '5px solid black',
-              position: 'absolute',
-              left: `${Math.min(initialx, x)}px`,
-              top: `${Math.min(initialy, y)}px`
-            }}
+          <div className={`${shape === 'square' ? 'rounded-[10px]' : 'rounded-[100%]'} w-[${differencex}px] h-[${differencey}px] bg-transparent
+          border-[5px] border-black absolute left-[${Math.min(initialx, x)}px] right-[${Math.min(initialy, y)}px]`}
           />
           {
             box.map((box, index) => {
               return (
-                <div key={index} style={{ borderRadius: `${box.shape === 'square' ? '10px' : '100%'}`, width: `${box.height}px`, height: `${box.width}px`, background: "transparemt", border: '5px solid black', position: 'absolute', left: `${box.left}px`, top: `${box.right}px` }}></div>
+                <div
+                  style={{
+                    borderRadius: `${box.shape === 'square' ? '10px' : '100%'}`,
+                    width: `${box.height}px`,
+                    height: `${box.width}px`,
+                    background: "transparemt", border: '5px solid black', position: 'absolute',
+                    left: `${box.left}px`, top: ` ${box.right}px`
+
+                  }}
+                  key={index} />
               )
             })
           }
         </div>
-      </div>
+      </div >
     </>
   )
 }
