@@ -4,6 +4,7 @@ export interface box {
     left: number;
     right: number;
     shape: shapeType
+    selected: boolean;
 }
 
 export type shapeType = "square" | "circle";

@@ -33,12 +33,14 @@ function App() {
     setBox(prev => [
       ...prev,
       {
-        height: differencex,
-        width: differencey,
+        height: differencey,
+        width: differencex,
         left: Math.min(initialx, x),
         right: Math.min(initialy, y),
-        shape: shape
+        shape: shape,
+        selected: false
       }])
+    console.log(box)
     setX(0)
     setY(0)
     setInitialx(0)
@@ -67,6 +69,11 @@ function App() {
   //   }
   // }
 
+  const onBoxSelect = (index: number) => {
+    setBox((box) => box.map((b, i) => ({ ...b, selected: i === index })))
+    box.map(box => box.selected = false)
+  }
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '2') {
@@ -86,7 +93,8 @@ function App() {
   return (
     <>
       {/* <MyCanvasComponent /> */}
-      <div className='absolute w-full h-screen flex justify-center bg-[#eee]'>
+      <div onClick={() => setBox(prev => prev.map(b => ({ ...b, selected: false })))}
+        className='absolute w-full h-screen flex justify-center bg-[#eee] z-0'>
 
         <div className='cursor-pointer absolute w-1/4 bg-white z-1 flex justify-around'>
           <p className={`${shape === 'square' ? 'border-2 border-blue-700' : ''}`}
@@ -100,23 +108,40 @@ function App() {
           onMouseUp={handleMouseUp}
           onMouseMove={(e) => handleMouseMove(e)}
         >
+          {/* Print mouse location */}
+          <div className="absolute top-0 left-0 bg-white text-black p-2 rounded shadow z-10">
+            Mouse: ({x}, {y})
+          </div>
           {/* Click anywhere */}
-          <div className={`${shape === 'square' ? 'rounded-[10px]' : 'rounded-[100%]'} w-[${differencex}px] h-[${differencey}px] bg-transparent
-          border-[5px] border-black absolute left-[${Math.min(initialx, x)}px] right-[${Math.min(initialy, y)}px]`}
+          <div style={{
+            borderRadius: `${shape === 'square' ? '10px' : '100%'}`,
+            width: `${differencex}px`,
+            height: `${differencey}px`,
+            background: 'transparemt',
+            border: '5px solid black',
+            position: 'absolute',
+            left: `${Math.min(initialx, x)}px`,
+            top: `${Math.min(initialy, y)}px`
+          }}
           />
           {
             box.map((box, index) => {
               return (
                 <div
+                  onClick={(e) => {e.stopPropagation(); onBoxSelect(index) }}
                   style={{
                     borderRadius: `${box.shape === 'square' ? '10px' : '100%'}`,
-                    width: `${box.height}px`,
-                    height: `${box.width}px`,
+                    width: `${box.width}px`,
+                    height: `${box.height}px`,
                     background: "transparemt", border: '5px solid black', position: 'absolute',
-                    left: `${box.left}px`, top: ` ${box.right}px`
+                    left: `${box.left}px`, top: `${box.right}px`,
+                    zIndex: 1,
+                    color: 'black'
 
                   }}
-                  key={index} />
+                  key={index}>
+                  {box.selected ? 'selected' : 'hello'}
+                </div>
               )
             })
           }
