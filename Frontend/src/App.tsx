@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 // import MyCanvasComponent from './components/CanvasComponent'
-import type { box, shapeType } from './types';
+import type { box, operation } from './types';
+import ShapeComponent from './components/ShapeComponent';
+import MyCanvasComponent from './components/CanvasComponent';
+import HighlightComponent from './components/HighlightComponent';
 
 function App() {
 
@@ -11,53 +14,58 @@ function App() {
   const [differencex, setDifferencex] = useState(0)
   const [differencey, setDifferencey] = useState(0)
   const [isMouseDown, setIsMouseDown] = useState(false)
+  const [shape, setShape] = useState<operation>('click')
   const [box, setBox] = useState<box[]>([])
-  const [shape, setShape] = useState<shapeType>('square')
+  const [isDrawing, setIsDrawing] = useState(false)
 
 
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    setIsMouseDown(true)
+    if (shape !== 'click') {
+      setIsMouseDown(true)
 
-    if (isMouseDown) {
+      if (isMouseDown) {
+        setDifferencex(0)
+        setDifferencey(0)
+      }
       setDifferencex(0)
       setDifferencey(0)
+      setInitialx(e.clientX)
+      setInitialy(e.clientY)
     }
-    setDifferencex(0)
-    setDifferencey(0)
-    setInitialx(e.clientX)
-    setInitialy(e.clientY)
   }
 
   const handleMouseUp = () => { //e: React.MouseEvent<HTMLDivElement>
-    setBox(prev => [
-      ...prev,
-      {
-        height: differencey,
-        width: differencex,
-        left: Math.min(initialx, x),
-        right: Math.min(initialy, y),
-        shape: shape,
-        selected: false
-      }])
-    console.log(box)
-    setX(0)
-    setY(0)
-    setInitialx(0)
-    setInitialy(0)
-    setDifferencex(0)
-    setDifferencey(0)
     setIsMouseDown(false)
+    if (shape !== 'click' && !isDrawing) {
+      setBox(prev => [
+        ...prev,
+        {
+          height: differencey,
+          width: differencex,
+          left: Math.min(initialx, x),
+          right: Math.min(initialy, y),
+          shape: shape,
+          selected: false
+        }])
+      setX(0)
+      setY(0)
+      setInitialx(0)
+      setInitialy(0)
+      setDifferencex(0)
+      setDifferencey(0)
+    }
 
   }
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isMouseDown) {
+    if (isMouseDown && shape !== 'click') {
       setDifferencex(Math.abs(e.clientX - initialx));
       setDifferencey(Math.abs(e.clientY - initialy));
       // Update x and y for position calculations
       setX(e.clientX);
       setY(e.clientY);
+
     }
   }
 
@@ -69,18 +77,16 @@ function App() {
   //   }
   // }
 
-  const onBoxSelect = (index: number) => {
-    setBox((box) => box.map((b, i) => ({ ...b, selected: i === index })))
-    box.map(box => box.selected = false)
-  }
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '2') {
         setShape('square')
       } else if (e.key === '3') {
         setShape('circle')
+      } else if (e.key === '1') {
+        setShape('click')
       }
+
     }
 
     window.addEventListener('keydown', handleKeyDown);
@@ -93,60 +99,22 @@ function App() {
   return (
     <>
       {/* <MyCanvasComponent /> */}
-      <div onClick={() => setBox(prev => prev.map(b => ({ ...b, selected: false })))}
+      <div onClick={() => { setBox(prev => prev.map(b => ({ ...b, selected: false }))); setIsDrawing(false) }}
         className='absolute w-full h-screen flex justify-center bg-[#eee] z-0'>
 
-        <div className='cursor-pointer absolute w-1/4 bg-white z-1 flex justify-around'>
-          <p className={`${shape === 'square' ? 'border-2 border-blue-700' : ''}`}
-            onClick={() => setShape('square')}>Square</p>
-          <p className={`${shape === 'circle' ? 'border-2 border-blue-700' : ''}`}
-            onClick={() => setShape('circle')}> Circle</p>
-        </div>
+        < ShapeComponent shape={shape} setShape={setShape} />
 
         <div className='absolute w-full h-screen bg-[#eee]'
           onMouseDown={(e) => handleMouseDown(e)}
           onMouseUp={handleMouseUp}
           onMouseMove={(e) => handleMouseMove(e)}
         >
-          {/* Print mouse location */}
-          <div className="absolute top-0 left-0 bg-white text-black p-2 rounded shadow z-10">
-            Mouse: ({x}, {y})
-          </div>
-          {/* Click anywhere */}
-          <div style={{
-            borderRadius: `${shape === 'square' ? '10px' : '100%'}`,
-            width: `${differencex}px`,
-            height: `${differencey}px`,
-            background: 'transparemt',
-            border: '5px solid black',
-            position: 'absolute',
-            left: `${Math.min(initialx, x)}px`,
-            top: `${Math.min(initialy, y)}px`
-          }}
+          <HighlightComponent
+            shape={shape} differencex={differencex} differencey={differencey} initialx={initialx} initialy={initialy} x={x} y={y} isDrawing={isDrawing} isMouseDown={isMouseDown}
           />
-          {
-            box.map((box, index) => {
-              return (
-                <div
-                  onClick={(e) => {e.stopPropagation(); onBoxSelect(index) }}
-                  style={{
-                    borderRadius: `${box.shape === 'square' ? '10px' : '100%'}`,
-                    width: `${box.width}px`,
-                    height: `${box.height}px`,
-                    background: "transparemt", border: '5px solid black', position: 'absolute',
-                    left: `${box.left}px`, top: `${box.right}px`,
-                    zIndex: 1,
-                    color: 'black'
-
-                  }}
-                  key={index}>
-                  {box.selected ? 'selected' : 'hello'}
-                </div>
-              )
-            })
-          }
+          <MyCanvasComponent box={box} setBox={setBox} setIsDrawing={setIsDrawing} />
         </div>
-      </div >
+      </div>
     </>
   )
 }

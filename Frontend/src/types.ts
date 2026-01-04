@@ -3,8 +3,8 @@ export interface box {
     width: number;
     left: number;
     right: number;
-    shape: shapeType
+    shape: operation
     selected: boolean;
 }
 
-export type shapeType = "square" | "circle";
+export type operation = "square" | "circle" | 'click';
