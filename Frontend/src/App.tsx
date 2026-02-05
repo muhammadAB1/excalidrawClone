@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 // import MyCanvasComponent from './components/CanvasComponent'
 import type { box, operation } from './types';
 import ShapeComponent from './components/ShapeComponent';
-import MyCanvasComponent from './components/CanvasComponent';
+import MyCanvasComponent from './components/MovementComponent';
 import HighlightComponent from './components/HighlightComponent';
 
 function App() {
@@ -16,7 +16,9 @@ function App() {
   const [isMouseDown, setIsMouseDown] = useState(false)
   const [shape, setShape] = useState<operation>('click')
   const [box, setBox] = useState<box[]>([])
-  const [isDrawing, setIsDrawing] = useState(false)
+  const [isMoving, setIsMoving] = useState(false)
+  const [isSelected, setIsSelected] = useState(false)
+  const [isActive, setIsActive] = useState(false)
 
 
 
@@ -37,7 +39,7 @@ function App() {
 
   const handleMouseUp = () => { //e: React.MouseEvent<HTMLDivElement>
     setIsMouseDown(false)
-    if (shape !== 'click' && !isDrawing) {
+    if (shape !== 'click' && !isMoving) {
       setBox(prev => [
         ...prev,
         {
@@ -54,6 +56,7 @@ function App() {
       setInitialy(0)
       setDifferencex(0)
       setDifferencey(0)
+      setShape('click')
     }
 
   }
@@ -80,10 +83,16 @@ function App() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '2') {
+        setIsMoving(false)
+        setBox(prev => prev.map(b => ({ ...b, selected: false })))
         setShape('square')
       } else if (e.key === '3') {
+        setIsMoving(false)
+        setBox(prev => prev.map(b => ({ ...b, selected: false })))
         setShape('circle')
       } else if (e.key === '1') {
+        setIsMoving(false)
+        setBox(prev => prev.map(b => ({ ...b, selected: false })))
         setShape('click')
       }
 
@@ -99,10 +108,10 @@ function App() {
   return (
     <>
       {/* <MyCanvasComponent /> */}
-      <div onClick={() => { setBox(prev => prev.map(b => ({ ...b, selected: false }))); setIsDrawing(false) }}
+      <div onClick={() => { !isActive && setBox(prev => prev.map(b => ({ ...b, selected: false }))); setIsMoving(false); !isActive && setIsSelected(false); setIsActive(false); }}
         className='absolute w-full h-screen flex justify-center bg-[#eee] z-0'>
 
-        < ShapeComponent shape={shape} setShape={setShape} />
+        <ShapeComponent shape={shape} setShape={setShape} />
 
         <div className='absolute w-full h-screen bg-[#eee]'
           onMouseDown={(e) => handleMouseDown(e)}
@@ -110,9 +119,9 @@ function App() {
           onMouseMove={(e) => handleMouseMove(e)}
         >
           <HighlightComponent
-            shape={shape} differencex={differencex} differencey={differencey} initialx={initialx} initialy={initialy} x={x} y={y} isDrawing={isDrawing} isMouseDown={isMouseDown}
+            shape={shape} differencex={differencex} differencey={differencey} initialx={initialx} initialy={initialy} x={x} y={y} isMoving={isMoving} isMouseDown={isMouseDown}
           />
-          <MyCanvasComponent box={box} setBox={setBox} setIsDrawing={setIsDrawing} />
+          <MyCanvasComponent box={box} setBox={setBox} setIsMoving={setIsMoving} shape={shape} setShape={setShape} isMoving={isMoving} isSelected={isSelected} setIsSelected={setIsSelected} setIsActive={setIsActive} />
         </div>
       </div>
     </>
