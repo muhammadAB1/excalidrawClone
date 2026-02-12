@@ -23,7 +23,7 @@ function App() {
 
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (shape !== 'click') {
+    if (shape !== 'click' && !isMoving) {
       setIsMouseDown(true)
 
       if (isMouseDown) {
@@ -62,7 +62,8 @@ function App() {
   }
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isMouseDown && shape !== 'click') {
+    if (!isMoving && isMouseDown && shape !== 'click' && e != null) {
+
       setDifferencex(Math.abs(e.clientX - initialx));
       setDifferencey(Math.abs(e.clientY - initialy));
       // Update x and y for position calculations
@@ -70,15 +71,13 @@ function App() {
       setY(e.clientY);
 
     }
+    if (isMoving && isMouseDown) {
+      if (box.filter(b => b.selected === true)[0].selected) {
+        setDifferencex((e.clientX - initialx));
+        setDifferencey((e.clientY - initialy));
+      }
+    }
   }
-
-  // const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-  //   if (e.key === '2') {
-  //     setShape('square')
-  //   } else if (e.key === '3') {
-  //     setShape('circle')
-  //   }
-  // }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -108,7 +107,12 @@ function App() {
   return (
     <>
       {/* <MyCanvasComponent /> */}
-      <div onClick={() => { !isActive && setBox(prev => prev.map(b => ({ ...b, selected: false }))); setIsMoving(false); !isActive && setIsSelected(false); setIsActive(false); }}
+      <div onClick={() => {
+        if (!isMoving) {
+          !isActive && setBox(prev => prev.map(b => ({ ...b, selected: false }))); setIsMoving(false); !isActive && setIsSelected(false); setIsActive(false);
+        }
+      }
+      }
         className='absolute w-full h-screen flex justify-center bg-[#eee] z-0'>
 
         <ShapeComponent shape={shape} setShape={setShape} />
@@ -121,7 +125,28 @@ function App() {
           <HighlightComponent
             shape={shape} differencex={differencex} differencey={differencey} initialx={initialx} initialy={initialy} x={x} y={y} isMoving={isMoving} isMouseDown={isMouseDown}
           />
-          <MyCanvasComponent box={box} setBox={setBox} setIsMoving={setIsMoving} shape={shape} setShape={setShape} isMoving={isMoving} isSelected={isSelected} setIsSelected={setIsSelected} setIsActive={setIsActive} />
+          <MyCanvasComponent
+            box={box}
+            setBox={setBox}
+            setIsMoving={setIsMoving}
+            shape={shape}
+            setShape={setShape}
+            isMoving={isMoving}
+            isSelected={isSelected}
+            setIsSelected={setIsSelected}
+            setIsActive={setIsActive}
+            differencex={differencex}
+            differencey={differencey}
+            setDifferencex={setDifferencex}
+            setDifferencey={setDifferencey}
+            handleMouseMove={handleMouseMove}
+            isMouseDown={isMouseDown}
+            setIsMouseDown={setIsMouseDown}
+            initialx={initialx}
+            initialy={initialy}
+            setInitialx={setInitialx}
+            setInitialy={setInitialy}
+          />
         </div>
       </div>
     </>

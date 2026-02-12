@@ -2,7 +2,7 @@ import type { operation } from "../types"
 
 const HighlightComponent = ({ shape, differencex, differencey, initialx, initialy, x, y, isMoving, isMouseDown }:
     { shape: operation, differencex: number, differencey: number, initialx: number, initialy: number, x: number, y: number, isMoving: boolean, isMouseDown: boolean }) => {
-    return (
+        return (
         <>
             {
                 shape !== 'click' && !isMoving && isMouseDown &&

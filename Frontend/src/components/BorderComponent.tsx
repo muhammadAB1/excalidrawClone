@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import type { box } from "../types";
 
-const BorderComponent = ({ width,
+const BorderComponent = ({
+    width,
     height,
     position,
     cursor,
@@ -14,7 +15,8 @@ const BorderComponent = ({ width,
     isSelected,
     setBox,
     box,
-    isMouseDown
+    isMouseDown,
+    setIsMouseDown
 }
     :
     {
@@ -29,10 +31,10 @@ const BorderComponent = ({ width,
         index: number,
         setIsMoving: (state: boolean) => void,
         isSelected: boolean,
-        setBox: (state: box[]) => void,
-        box: box[]
-        isMouseDown: boolean
-
+        box: box[],
+        setBox: (box: box[]) => void,
+        isMouseDown: boolean,
+        setIsMouseDown: (state: boolean) => void
     }
 ) => {
     const [initialx, setInitialx] = useState(0)
@@ -41,18 +43,22 @@ const BorderComponent = ({ width,
     const [differenceWidth, setDifferenceWidth] = useState(0)
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-        setDifferenceHeight(0)
-        // setDifferencey(0)
+        setIsMouseDown(true)
         setInitialy(e.clientY)
-        // console.log('initial position', initialy)
-        // setInitialy(e.clientY)
+        console.log(
+            box.map((b) =>
+                b.selected ? {
+                    ...b, height: (b.height - differenceHeight),
+                } : b
+            )
+        )
     }
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (isMouseDown) {
-            setDifferenceHeight((initialy - e.clientY));
+            console.log(`initialy: ${initialy} finaly:${e.clientY}`)
+            setDifferenceHeight((initialy + e.clientY));
             // console.log(differenceHeight)
-            console.log(box)
 
         }
         // setDifferencey((e.clientY - initialy));
@@ -63,10 +69,17 @@ const BorderComponent = ({ width,
         setBox(
             box.map((b) =>
                 b.selected ? {
-                    ...b, height: (b.height + differenceHeight),
+                    ...b, height: (b.height - differenceHeight),
                 } : b
             )
         );
+        console.log(
+            box.map((b) =>
+                b.selected ? {
+                    ...b, height: (b.height - differenceHeight),
+                } : b
+            )
+        )
 
 
         setInitialx(0)
@@ -80,11 +93,15 @@ const BorderComponent = ({ width,
 
     return (
         <div
-            onClick={(e) => { e.stopPropagation(); setIsSelected(true); shape === 'click' && !isMoving && onBoxSelect(index); shape === 'click' && setIsMoving(true) }}
+            onClick={(e) => { e.stopPropagation(); setIsSelected(true); shape === 'click' && !isMoving && onBoxSelect(index); }}
             onMouseMove={(e) => { handleMouseMove(e) }}
-            onMouseDown={(e) => { handleMouseDown(e) }}
+            onMouseDown={(e) => { handleMouseDown(e); setIsSelected(true); onBoxSelect(index) }}
             onMouseUp={(e) => { handleMouseUp(e) }}
-            className={`absolute w-${width} h-${height} ${position} bg-transparent hover:cursor-crosshair ${isSelected && `hover:${cursor}`}`}></div>
+            className={`absolute ${width} ${height} ${position}`}
+            style={{
+                cursor: `${isSelected ? `${cursor}` : `crosshair`}`
+            }}
+        ></div>
     )
 }
 

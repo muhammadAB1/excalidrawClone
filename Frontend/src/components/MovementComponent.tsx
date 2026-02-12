@@ -2,8 +2,50 @@ import { useState } from "react";
 import type { box, operation } from "../types";
 import BorderComponent from "./BorderComponent";
 
-const MyCanvasComponent = ({ box, setBox, setIsMoving, shape, setShape, isMoving, isSelected, setIsSelected, setIsActive }:
-    { box: box[], setBox: (box: box[]) => void, setIsMoving: (state: boolean) => void, shape: operation, setShape: (state: operation) => void, isMoving: boolean, isSelected: boolean, setIsSelected: (state: boolean) => void, setIsActive: (state: boolean) => void }) => {
+const MyCanvasComponent = ({
+    box,
+    setBox,
+    setIsMoving,
+    shape,
+    setShape,
+    isMoving,
+    isSelected,
+    setIsSelected,
+    setIsActive,
+    differencex,
+    differencey,
+    setDifferencex,
+    setDifferencey,
+    handleMouseMove,
+    isMouseDown,
+    setIsMouseDown,
+    initialx,
+    initialy,
+    setInitialx,
+    setInitialy
+}:
+    {
+        box: box[],
+        setBox: (box: box[]) => void,
+        setIsMoving: (state: boolean) => void,
+        shape: operation,
+        setShape: (state: operation) => void,
+        isMoving: boolean,
+        isSelected: boolean,
+        setIsSelected: (state: boolean) => void,
+        setIsActive: (state: boolean) => void,
+        differencex: number,
+        differencey: number,
+        setDifferencex: (state: number) => void,
+        setDifferencey: (state: number) => void,
+        isMouseDown: boolean,
+        setIsMouseDown: (state: boolean) => void,
+        initialx: number,
+        setInitialx: (state: number) => void,
+        initialy: number,
+        setInitialy: (state: number) => void,
+        handleMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void
+    }) => {
 
     // const canvasRef = useRef(null);
 
@@ -16,12 +58,7 @@ const MyCanvasComponent = ({ box, setBox, setIsMoving, shape, setShape, isMoving
 
     //     ctx.fillStyle = "green";
     //     ctx.fillRect(10, 10, 150, 100);
-    // }, []);
-    const [isMouseDown, setIsMouseDown] = useState(false)
-    const [initialx, setInitialx] = useState(0)
-    const [initialy, setInitialy] = useState(0)
-    const [differencex, setDifferencex] = useState(0)
-    const [differencey, setDifferencey] = useState(0)
+    // }, []);)
 
     const onBoxSelect = (index: number) => {
         setBox(box.map((b, i) => ({ ...b, selected: i === index })))
@@ -38,11 +75,8 @@ const MyCanvasComponent = ({ box, setBox, setIsMoving, shape, setShape, isMoving
             setIsMoving(true)
         }
     }
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (isMouseDown) {
-            setDifferencex((e.clientX - initialx));
-            setDifferencey((e.clientY - initialy));
-        }
+    const handleBoxMove = (e: React.MouseEvent<HTMLDivElement>, index: number) => {
+        handleMouseMove(e)
     }
 
 
@@ -69,31 +103,42 @@ const MyCanvasComponent = ({ box, setBox, setIsMoving, shape, setShape, isMoving
     return (
         <>
             {
-                box.map((box, index) => {
+                box.map((b, index) => {
                     return (
                         <div
-                            // onClick={}
-                            onMouseMove={(e) => { handleMouseMove(e) }}
+                            onMouseMove={(e) => { handleBoxMove(e, index) }}
                             onMouseDown={(e) => { handleMouseDown(e) }}
                             onMouseUp={(e) => { handleMouseUp(index) }}
 
                             style={{
-                                borderRadius: `${box.shape === 'square' ? '10px' : '100%'}`,
-                                width: `${box.width}px`,
-                                height: `${box.height}px`,
+                                borderRadius: `${b.shape === 'square' ? '10px' : '100%'}`,
+                                width: `${b.width}px`,
+                                height: `${b.height}px`,
                                 background: "transparent", position: 'absolute',
-                                left: `${box.selected ? box.left + differencex : box.left}px`, top: `${box.selected ? box.right + differencey : box.right}px`,
+                                left: `${b.selected ? b.left + differencex : b.left}px`, top: `${b.selected ? b.right + differencey : b.right}px`,
 
                                 color: 'black',
-                                border: `${box.selected ? '5px solid blue' : '5px solid black'}`,
+                                border: `${b.selected ? '5px solid blue' : '5px solid black'}`,
                                 cursor: `${isSelected ? 'crosshair' : 'default'}`
 
                             }}
                             key={index}>
-                            <BorderComponent width={'full'} height={'8'} position={'-top-4'} cursor={'cursor-n-resize'} isMoving={isMoving} index={index} isSelected={isSelected} onBoxSelect={onBoxSelect} setIsMoving={setIsMoving} setIsSelected={setIsSelected} shape={shape} setBox={setBox} box={box} isMouseDown={isMouseDown} />
-                            <BorderComponent width={'full'} height={'8'} position={'-bottom-4'} cursor={'cursor-n-resize'} isMoving={isMoving} index={index} isSelected={isSelected} onBoxSelect={onBoxSelect} setIsMoving={setIsMoving} setIsSelected={setIsSelected} shape={shape} setBox={setBox} box={box} isMouseDown={isMouseDown} />
-                            <BorderComponent width={'8'} height={'full'} position={'-left-4 top-0'} cursor={'cursor-e-resize'} isMoving={isMoving} index={index} isSelected={isSelected} onBoxSelect={onBoxSelect} setIsMoving={setIsMoving} setIsSelected={setIsSelected} shape={shape} setBox={setBox} box={box} isMouseDown={isMouseDown} />
-                            <BorderComponent width={'8'} height={'full'} position={'-right-4 top-0'} cursor={'cursor-e-resize'} isMoving={isMoving} index={index} isSelected={isSelected} onBoxSelect={onBoxSelect} setIsMoving={setIsMoving} setIsSelected={setIsSelected} shape={shape} setBox={setBox} box={box} isMouseDown={isMouseDown} />
+                            <BorderComponent width={'w-full'} height={'h-8'} position={'-top-4'} cursor={'n-resize'}
+                                isMoving={isMoving} index={index} isSelected={isSelected} onBoxSelect={onBoxSelect} setIsMoving={setIsMoving}
+                                setIsSelected={setIsSelected} shape={shape} setBox={setBox} box={box} isMouseDown={isMouseDown} setIsMouseDown={setIsMouseDown} />
+
+                            <BorderComponent width={'w-full'} height={'h-8'} position={'-bottom-4'} cursor={'n-resize'}
+                                isMoving={isMoving} index={index} isSelected={isSelected} onBoxSelect={onBoxSelect} setIsMoving={setIsMoving}
+                                setIsSelected={setIsSelected} shape={shape} setBox={setBox} box={box} isMouseDown={isMouseDown} setIsMouseDown={setIsMouseDown} />
+
+                            <BorderComponent width={'w-8'} height={'h-full'} position={'-left-4 top-0'} cursor={'e-resize'}
+                                isMoving={isMoving} index={index} isSelected={isSelected} onBoxSelect={onBoxSelect} setIsMoving={setIsMoving}
+                                setIsSelected={setIsSelected} shape={shape} setBox={setBox} box={box} isMouseDown={isMouseDown} setIsMouseDown={setIsMouseDown} />
+
+                            <BorderComponent width={'w-8'} height={'h-full'} position={'-right-4 top-0'} cursor={'e-resize'}
+                                isMoving={isMoving} index={index} isSelected={isSelected} onBoxSelect={onBoxSelect} setIsMoving={setIsMoving}
+                                setIsSelected={setIsSelected} shape={shape} setBox={setBox} box={box} isMouseDown={isMouseDown} setIsMouseDown={setIsMouseDown} />
+
                         </div >
                     )
                 })
